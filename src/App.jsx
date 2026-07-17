@@ -460,7 +460,7 @@ export default function App() {
       <header className="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-20 flex justify-between items-center shadow-md">
         <div className="flex flex-col">
           <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">FantaSerieA</h1>
-          <span className="text-[9px] text-slate-400 font-mono">LIMITE A: 22/08 | R: 16/01</span>
+          <span className="text-[9px] text-slate-400 font-mono">SERIE A: 22/08 | R: 16/01</span>
         </div>
         
         <div className="flex items-center gap-3">
