@@ -558,7 +558,7 @@ export default function App() {
                   /* SOSTITUISCI LE VARIABILI QUI SOTTO CON I TUOI STATI REALI */
                   value={marcatoreScelto || ''} 
                   onChange={(e) => setMarcatoreScelto(e.target.value)} 
-                  disabled={isCampionatoIniziato || !isMioProfilo} 
+                  disabled={isCampionatoIniziato} 
                   className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 placeholder:text-slate-600 placeholder:font-normal"
                 />
                 <button 
