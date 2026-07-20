@@ -481,29 +481,26 @@ export default function App() {
             )}
             
             {/* 👇 INIZIO: SEZIONE STATISTICHE SCOMMESSE 👇 */}
-            {isScaduta && !isRisultatiReali && totaleVoti > 0 && statiStatistiche[partita.id] && (
+            {/* 👇 STATISTICHE 1X2 (Sempre visibili se scaduta) 👇 */}
+            {isScaduta && !isRisultatiReali && totaleVoti > 0 && (
               <div className="mt-4 pt-3 border-t border-slate-800/60 animate-fade-in">
                 <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
-                  Scommesse Community
+                  Scommesse Community (1X2)
                 </p>
                 <div className="flex justify-between items-center text-[10px] font-bold px-2">
-                  <div className="flex flex-col items-center w-1/3 text-blue-400">
-                    <span>1</span><span>{perc1}%</span>
-                  </div>
-                  <div className="flex flex-col items-center w-1/3 text-slate-400">
-                    <span>X</span><span>{percX}%</span>
-                  </div>
-                  <div className="flex flex-col items-center w-1/3 text-red-400">
-                    <span>2</span><span>{perc2}%</span>
-                  </div>
+                  <div className="flex flex-col items-center w-1/3 text-blue-400"><span>1</span><span>{perc1}%</span></div>
+                  <div className="flex flex-col items-center w-1/3 text-slate-400"><span>X</span><span>{percX}%</span></div>
+                  <div className="flex flex-col items-center w-1/3 text-red-400"><span>2</span><span>{perc2}%</span></div>
                 </div>
                 <div className="flex h-1.5 w-full mt-2 rounded-full overflow-hidden opacity-80">
                   <div style={{ width: `${perc1}%` }} className="bg-blue-500"></div>
                   <div style={{ width: `${percX}%` }} className="bg-slate-500"></div>
                   <div style={{ width: `${perc2}%` }} className="bg-red-500"></div>
                 </div>
-                {partita.is_inter && risultatiOrdinati.length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-slate-800/60">
+
+                {/* 👇 BONUS INTER: Appare solo se clicchi il tasto (statiStatistiche[partita.id]) 👇 */}
+                {partita.is_inter && statiStatistiche[partita.id] && risultatiOrdinati.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-slate-800/60 animate-fade-in">
                     <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
                       Top Risultati Esatti
                     </p>
