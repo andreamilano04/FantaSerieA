@@ -117,12 +117,12 @@ export default function App() {
       if (session?.user?.id) {
         const { data: marcatoreData } = await supabase
           .from('pronostici_marcatore')
-          .select('marcatore')
+          .select('nome_marcatore') // 
           .eq('profilo_id', session.user.id)
           .single();
         
         if (marcatoreData) {
-          setMarcatoreScelto(marcatoreData.marcatore);
+          setMarcatoreScelto(marcatoreData.nome_marcatore); // 
         }
       }
 
@@ -153,14 +153,14 @@ export default function App() {
         // Se esiste già, lo AGGIORNA (UPDATE)
         const { error } = await supabase
           .from('pronostici_marcatore')
-          .update({ marcatore: nomeMarcatore })
+          .update({ nome_marcatore: nomeMarcatore })
           .eq('profilo_id', session.user.id);
         if (error) throw error;
       } else {
         // Se non esiste, lo CREA (INSERT)
         const { error } = await supabase
           .from('pronostici_marcatore')
-          .insert([{ profilo_id: session.user.id, marcatore: nomeMarcatore }]);
+          .insert([{ profilo_id: session.user.id, nome_marcatore: nomeMarcatore }]);
         if (error) throw error;
       }
 
