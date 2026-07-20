@@ -5,7 +5,7 @@ import { supabase } from './supabaseClient'
 // L'Admin (tu) è l'unico che vedrà i campi per inserire i risultati e il tasto Reset.
 const ADMIN_EMAIL = 'andrea.milano2004@gmail.com' 
 
-const DATA_LIMITE_ANDATA = new Date('2026-06-22T15:00:00')
+const DATA_LIMITE_ANDATA = new Date('2026-08-22T15:00:00')
 const DATA_LIMITE_RITORNO = new Date('2027-01-16T14:00:00')
 
 // 2. DIZIONARIO LOGHI SQUADRE (FotMob - 100% Affidabile)
@@ -72,7 +72,7 @@ export default function App() {
   const [tipoClassificaFantagioco, setTipoClassificaFantagioco] = useState('generale')
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL
-  const dataInizioCampionato = new Date('2026-06-22T18:00:00');
+  const dataInizioCampionato = new Date('2026-08-22T18:00:00');
   const isCampionatoIniziato = new Date() > dataInizioCampionato;
 
   useEffect(() => {
