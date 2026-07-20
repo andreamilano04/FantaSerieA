@@ -362,6 +362,18 @@ export default function App() {
     const isGiocata = partita.gol_casa !== null
     const isScaduta = partita.giornata <= 19 ? isAndataScaduta : isRitornoScaduto
 
+    // 👇 INIZIO NUOVO BLOCCO: CALCOLO STATISTICHE 👇
+    const pronosticiDiQuestaPartita = tuttiPronostici.filter(p => p.partita_id === partita.id && p.pronostico_1x2);
+    const totaleVoti = pronosticiDiQuestaPartita.length;
+    let perc1 = 0, percX = 0, perc2 = 0;
+    
+    if (totaleVoti > 0) {
+      perc1 = Math.round((pronosticiDiQuestaPartita.filter(p => p.pronostico_1x2 === '1').length / totaleVoti) * 100);
+      percX = Math.round((pronosticiDiQuestaPartita.filter(p => p.pronostico_1x2 === 'X').length / totaleVoti) * 100);
+      perc2 = Math.round((pronosticiDiQuestaPartita.filter(p => p.pronostico_1x2 === '2').length / totaleVoti) * 100);
+    }
+    // 👆 FINE NUOVO BLOCCO 👆
+
     return (
       <div key={partita.id} className={`bg-slate-900 border ${partita.is_inter ? 'border-yellow-500/30' : 'border-slate-800'} p-4 rounded-2xl shadow-xl mb-4 relative`}>
         <div className="flex justify-between items-center mb-4">
@@ -438,6 +450,32 @@ export default function App() {
               </div>
             )}
             
+            {/* 👇 INIZIO: SEZIONE STATISTICHE SCOMMESSE 👇 */}
+            {isScaduta && !isRisultatiReali && totaleVoti > 0 && (
+              <div className="mt-4 pt-3 border-t border-slate-800/60">
+                <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
+                  Scommesse Community
+                </p>
+                <div className="flex justify-between items-center text-[10px] font-bold px-2">
+                  <div className="flex flex-col items-center w-1/3 text-blue-400">
+                    <span>1</span><span>{perc1}%</span>
+                  </div>
+                  <div className="flex flex-col items-center w-1/3 text-slate-400">
+                    <span>X</span><span>{percX}%</span>
+                  </div>
+                  <div className="flex flex-col items-center w-1/3 text-red-400">
+                    <span>2</span><span>{perc2}%</span>
+                  </div>
+                </div>
+                <div className="flex h-1.5 w-full mt-2 rounded-full overflow-hidden opacity-80">
+                  <div style={{ width: `${perc1}%` }} className="bg-blue-500"></div>
+                  <div style={{ width: `${percX}%` }} className="bg-slate-500"></div>
+                  <div style={{ width: `${perc2}%` }} className="bg-red-500"></div>
+                </div>
+              </div>
+            )}
+            {/* 👆 FINE: SEZIONE STATISTICHE SCOMMESSE 👆 */}
+
             {isGiocata && (
                <div className="absolute top-0 right-0 bg-slate-950 border-b border-l border-slate-800 rounded-bl-xl px-3 py-1">
                  <span className={`text-xs font-bold ${puntiOttenuti > 0 ? 'text-green-400' : 'text-slate-500'}`}>{puntiOttenuti > 0 ? `+${puntiOttenuti} pt` : '0 pt'}</span>
