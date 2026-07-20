@@ -5,6 +5,8 @@ import { supabase } from './supabaseClient'
 // L'Admin (tu) è l'unico che vedrà i campi per inserire i risultati e il tasto Reset.
 const ADMIN_EMAIL = 'andrea.milano2004@gmail.com' 
 
+const VINCITORI_REALI = []; // Quando finirà il campionato, scrivi qui i nomi come fatto prima!
+
 const DATA_LIMITE_ANDATA = new Date('2026-08-22T15:00:00')
 const DATA_LIMITE_RITORNO = new Date('2027-01-16T14:00:00')
 
@@ -204,14 +206,33 @@ export default function App() {
     return punti
   }
 
-  const calcolaClassificaGenerale = () => {
+ const calcolaClassificaGenerale = () => {
     return profili.map(profilo => {
       let puntiTotali = 0
+      
+      // 1. Calcola punti dalle partite (Parte esistente)
       const pronosticiUtente = tuttiPronostici.filter(p => p.profilo_id === profilo.id)
       pronosticiUtente.forEach(pronostico => {
         const partita = partite.find(p => p.id === pronostico.partita_id)
         if (partita) puntiTotali += calcolaPuntiPartita(partita, pronostico)
       })
+
+      // 2. BONUS MARCATORE: Aggiunge 10 punti se il nome coincide (A fine campionato)
+      const marcatoreUtente = tuttiMarcatori.find(m => m.profilo_id === profilo.id)?.nome_marcatore;
+      
+      if (marcatoreUtente && VINCITORI_REALI.length > 0) {
+        const utenteNormalizzato = marcatoreUtente.toLowerCase().trim();
+        
+        const haIndovinato = VINCITORI_REALI.some(vincitore => {
+          const realeNormalizzato = vincitore.toLowerCase().trim();
+          return realeNormalizzato.includes(utenteNormalizzato) || utenteNormalizzato.includes(realeNormalizzato);
+        });
+
+        if (haIndovinato) {
+          puntiTotali += 10;
+        }
+      }
+
       return { ...profilo, punti: puntiTotali }
     }).sort((a, b) => b.punti - a.punti)
   }
@@ -626,16 +647,39 @@ export default function App() {
             <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">I Miei Pronostici</h2>
             {/* INIZIO SEZIONE MARCATORE STAGIONALE */}
             <div className="bg-slate-900 border border-indigo-500/30 p-4 rounded-2xl shadow-xl mb-6 relative overflow-hidden">
-              {/* Etichetta Scadenza */}
-              <div className="absolute top-0 right-0 bg-indigo-500/10 text-indigo-400 text-[9px] font-bold px-2 py-1 rounded-bl-lg border-b border-l border-indigo-500/20">
-                SCADE IL 22/08
-              </div>
+              
+              {/* Etichetta Scadenza o Punteggio Finale */}
+              {VINCITORI_REALI.length > 0 ? (
+                <div className={`absolute top-0 right-0 text-[10px] font-bold px-3 py-1.5 rounded-bl-lg border-b border-l ${
+                  (() => {
+                    const nomeUtente = marcatoreScelto || "";
+                    if (!nomeUtente.trim()) return "bg-red-500/20 text-red-400 border-red-500/30";
+                    const haIndovinato = VINCITORI_REALI.some(v => v.toLowerCase().includes(nomeUtente.toLowerCase().trim()) || nomeUtente.toLowerCase().trim().includes(v.toLowerCase()));
+                    return haIndovinato ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30";
+                  })()
+                }`}>
+                  {(() => {
+                    const nomeUtente = marcatoreScelto || "";
+                    if (!nomeUtente.trim()) return "0 pt ❌";
+                    const haIndovinato = VINCITORI_REALI.some(v => v.toLowerCase().includes(nomeUtente.toLowerCase().trim()) || nomeUtente.toLowerCase().trim().includes(v.toLowerCase()));
+                    return haIndovinato ? "+10 pt 🎉" : "0 pt ❌";
+                  })()}
+                </div>
+              ) : (
+                <div className="absolute top-0 right-0 bg-indigo-500/10 text-indigo-400 text-[9px] font-bold px-2 py-1 rounded-bl-lg border-b border-l border-indigo-500/20">
+                  SCADE IL 22/08
+                </div>
+              )}
               
               <h3 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
                 👑 Marcatore Stagionale
               </h3>
-              <p className="text-[10px] text-slate-400 mb-3 leading-tight">
-                Scegli il tuo capocannoniere. Puoi cambiarlo quante volte vuoi fino all'inizio del campionato.
+              
+              {/* Testo dinamico: Spiega cosa fare o mostra il vincitore finale */}
+              <p className="text-[10px] mb-3 leading-tight font-medium text-slate-400">
+                {VINCITORI_REALI.length > 0 
+                  ? <span className="text-indigo-300 border-l-2 border-indigo-500/50 pl-2 block">Risultato ufficiale: <strong className="text-indigo-400 uppercase">{VINCITORI_REALI.join(' e ')}</strong></span>
+                  : "Scegli il tuo capocannoniere. Puoi cambiarlo quante volte vuoi fino all'inizio del campionato."}
               </p>
               
               <div className="flex gap-2">
@@ -644,12 +688,12 @@ export default function App() {
                   placeholder="Es. Lautaro Martinez"
                   value={marcatoreScelto || ''} 
                   onChange={(e) => setMarcatoreScelto(e.target.value)} 
-                  disabled={isCampionatoIniziato} 
+                  disabled={isCampionatoIniziato || VINCITORI_REALI.length > 0} 
                   className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 placeholder:text-slate-600 placeholder:font-normal"
                 />
                 <button 
                   onClick={() => salvaMarcatore(marcatoreScelto)} 
-                  disabled={isCampionatoIniziato}
+                  disabled={isCampionatoIniziato || VINCITORI_REALI.length > 0}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
                 >
                   Salva
@@ -724,24 +768,37 @@ export default function App() {
                 </div>
                 
                 {/* NUOVO: BADGE MARCATORE DELL'UTENTE SPIATO */}
-                <div className="mb-6 p-3 bg-indigo-950/30 border border-indigo-500/30 rounded-xl flex items-center justify-between shadow-inner">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    👑 Marcatore Stagionale
-                  </span>
-                  {isCampionatoIniziato || utenteSelezionato.id === session.user.id ? (
-                    <span className="text-sm font-bold text-indigo-400 flex items-center gap-1.5">
+                <div className="mb-6 p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl flex items-center justify-between shadow-inner">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      👑 Marcatore Stagionale
+                    </span>
+                    <span className="text-sm font-bold text-indigo-400 flex items-center gap-1.5 mt-1">
                       {tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore ? (
                         <>⚽ {tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore}</>
                       ) : (
                         <span className="italic text-slate-500 text-xs">Nessuno</span>
                       )}
                     </span>
-                  ) : (
-                    <span className="text-[10px] font-bold bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md border border-slate-700 flex items-center gap-1">
-                      🔒 Segreto fino al 22/08
-                    </span>
+                  </div>
+
+                  {/* VISUALIZZAZIONE PUNTI BONUS (Solo se il campionato è finito e ci sono vincitori) */}
+                  {VINCITORI_REALI.length > 0 && (
+                    <div className={`px-4 py-2 rounded-lg font-bold text-sm ${
+                      (() => {
+                        const nomeUtente = tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore || "";
+                        const haIndovinato = VINCITORI_REALI.some(v => v.toLowerCase().includes(nomeUtente.toLowerCase().trim()) || nomeUtente.toLowerCase().trim().includes(v.toLowerCase()));
+                        return haIndovinato ? "bg-green-500/20 text-green-400 border border-green-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20";
+                      })()
+                    }`}>
+                      {(() => {
+                        const nomeUtente = tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore || "";
+                        const haIndovinato = VINCITORI_REALI.some(v => v.toLowerCase().includes(nomeUtente.toLowerCase().trim()) || nomeUtente.toLowerCase().trim().includes(v.toLowerCase()));
+                        return haIndovinato ? "+10 pt" : "0 pt";
+                      })()}
+                    </div>
                   )}
-                </div>                
+                </div>              
                 {renderSelettoreGiornate()}
                 
                 {(!scadutaAttuale && utenteSelezionato.id !== session.user.id) ? (
