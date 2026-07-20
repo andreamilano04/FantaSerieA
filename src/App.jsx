@@ -378,6 +378,7 @@ export default function App() {
     const pronosticiInter = tuttiPronostici.filter(p => p.partita_id === partita.id && p.gol_casa_pronostico !== null && p.gol_trasferta_pronostico !== null);
     const totaleVotiInter = pronosticiInter.length;
     const conteggioRisultati = {};
+    const [mostraStatInter, setMostraStatInter] = useState(false);
 
     pronosticiInter.forEach(p => {
       const chiave = `${p.gol_casa_pronostico}-${p.gol_trasferta_pronostico}`;
@@ -459,18 +460,28 @@ export default function App() {
 
             {partita.is_inter && (
               <div className="mt-4 pt-3.5 border-t border-slate-800">
-                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 text-center">Risultato Esatto (Bonus)</p>
-                <div className="flex justify-center gap-3 items-center">
+                {/* Il tuo input per il risultato esatto rimane qui... */}
+                <div className="flex justify-center gap-3 items-center mb-4">
                   <input type="number" min="0" disabled={isScaduta || !isMioProfilo} value={pronostico.gol_casa_pronostico ?? ''} onChange={(e) => salvaPronostico(partita.id, undefined, e.target.value, null)} className="w-12 h-10 bg-slate-950 border border-slate-800 rounded-lg text-center font-bold text-sm text-slate-200 disabled:opacity-50" />
                   <span className="font-bold text-slate-600">-</span>
                   <input type="number" min="0" disabled={isScaduta || !isMioProfilo} value={pronostico.gol_trasferta_pronostico ?? ''} onChange={(e) => salvaPronostico(partita.id, undefined, null, e.target.value)} className="w-12 h-10 bg-slate-950 border border-slate-800 rounded-lg text-center font-bold text-sm text-slate-200 disabled:opacity-50" />
                 </div>
+
+                {/* PULSANTE PER VEDERE LE STATISTICHE DEGLI ALTRI */}
+                {isScaduta && totaleVotiInter > 0 && (
+                  <button 
+                    onClick={() => setMostraStatInter(!mostraStatInter)}
+                    className="w-full py-2 text-[10px] font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-all"
+                  >
+                    {mostraStatInter ? 'Nascondi Scommesse Community' : 'Vedi Scommesse Community'}
+                  </button>
+                )}
               </div>
             )}
             
             {/* 👇 INIZIO: SEZIONE STATISTICHE SCOMMESSE 👇 */}
-            {isScaduta && !isRisultatiReali && totaleVoti > 0 && (
-              <div className="mt-4 pt-3 border-t border-slate-800/60">
+            {isScaduta && !isRisultatiReali && totaleVoti > 0 && mostraStatInter && (
+              <div className="mt-4 pt-3 border-t border-slate-800/60 animate-fade-in">
                 <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
                   Scommesse Community
                 </p>
