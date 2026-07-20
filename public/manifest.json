@@ -1,0 +1,21 @@
+{
+  "short_name": "FantaSerieA",
+  "name": "FantaSerieA - Pronostici",
+  "description": "App per pronostici e risultati della Serie A",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
