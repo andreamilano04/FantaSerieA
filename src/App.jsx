@@ -112,6 +112,20 @@ export default function App() {
       setProfili(resProfili.data || [])
       setPartite(resPartite.data || [])
       setTuttiPronostici(resPronostici.data || [])
+
+      // NUOVO: Carica il marcatore stagionale dell'utente loggato
+      if (session?.user?.id) {
+        const { data: marcatoreData } = await supabase
+          .from('pronostici_marcatore')
+          .select('marcatore')
+          .eq('profilo_id', session.user.id)
+          .single();
+        
+        if (marcatoreData) {
+          setMarcatoreScelto(marcatoreData.marcatore);
+        }
+      }
+
     } catch (error) {
       console.error("Errore:", error.message)
     } finally {
