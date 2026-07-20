@@ -59,6 +59,7 @@ export default function App() {
   const [profili, setProfili] = useState([])
   const [partite, setPartite] = useState([])
   const [tuttiPronostici, setTuttiPronostici] = useState([])
+  const [marcatoreScelto, setMarcatoreScelto] = useState('');
   
   const [isAndataScaduta, setIsAndataScaduta] = useState(false)
   const [isRitornoScaduto, setIsRitornoScaduto] = useState(false)
@@ -71,6 +72,8 @@ export default function App() {
   const [tipoClassificaFantagioco, setTipoClassificaFantagioco] = useState('generale')
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL
+  const dataInizioCampionato = new Date('2026-08-22T18:00:00');
+  const isCampionatoIniziato = new Date() > dataInizioCampionato;
 
   useEffect(() => {
     const checkTime = () => {
@@ -115,6 +118,44 @@ export default function App() {
       setLoading(false)
     }
   }
+
+  const salvaMarcatore = async (nomeMarcatore) => {
+    if (!nomeMarcatore.trim()) {
+      alert("Inserisci il nome del marcatore prima di salvare!");
+      return;
+    }
+
+    try {
+      // Cerca se esiste già un marcatore salvato per questo utente
+      const { data: existing, error: fetchError } = await supabase
+        .from('pronostici_marcatore')
+        .select('*')
+        .eq('profilo_id', session.user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+      if (existing) {
+        // Se esiste già, lo AGGIORNA (UPDATE)
+        const { error } = await supabase
+          .from('pronostici_marcatore')
+          .update({ marcatore: nomeMarcatore })
+          .eq('profilo_id', session.user.id);
+        if (error) throw error;
+      } else {
+        // Se non esiste, lo CREA (INSERT)
+        const { error } = await supabase
+          .from('pronostici_marcatore')
+          .insert([{ profilo_id: session.user.id, marcatore: nomeMarcatore }]);
+        if (error) throw error;
+      }
+
+      alert("Marcatore stagionale salvato con successo! 👑");
+    } catch (error) {
+      console.error("Errore salvataggio marcatore:", error);
+      alert("Errore durante il salvataggio del marcatore.");
+    }
+  };
 
   // --- FANTAGIOCO PUNTI ---
   const calcolaSegnoReale = (golCasa, golTrasferta) => {
@@ -316,7 +357,6 @@ export default function App() {
                   <span className="text-slate-500">-</span>
                   <input type="number" min="0" value={partita.gol_trasferta ?? ''} onChange={(e) => salvaRisultatoReale(partita.id, partita.gol_casa, e.target.value)} className="w-10 h-10 bg-slate-900 border border-slate-700 rounded-lg text-center font-bold text-slate-100" />
                 </div>
-                {/* TASTO RESET PER ADMIN */}
                 {isGiocata && (
                   <button onClick={() => salvaRisultatoReale(partita.id, '', '')} className="text-[9px] mt-1 font-bold bg-red-500/10 text-red-500 px-2 py-1 rounded border border-red-500/20 uppercase tracking-wider transition-all hover:bg-red-500/20">
                     Reset
@@ -374,6 +414,23 @@ export default function App() {
                 </div>
               </div>
             )}
+            
+            {/* INIZIO: NUOVA SEZIONE MARCATORE */}
+            <div className="mt-4 pt-3.5 border-t border-slate-800">
+              <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 text-center">Marcatore Scelto</p>
+              <div className="flex justify-center items-center">
+                {pronostico.nome_marcatore ? (
+                  <span className="text-sm font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
+                    ⚽ {pronostico.nome_marcatore}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-500 italic">
+                    Nessun marcatore scelto
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* FINE: NUOVA SEZIONE MARCATORE */}
             
             {isGiocata && (
                <div className="absolute top-0 right-0 bg-slate-950 border-b border-l border-slate-800 rounded-bl-xl px-3 py-1">
@@ -480,6 +537,40 @@ export default function App() {
         {activeTab === 'pronostici' && (
           <section className="animate-fade-in">
             <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4">I Miei Pronostici</h2>
+            {/* INIZIO SEZIONE MARCATORE STAGIONALE */}
+            <div className="bg-slate-900 border border-indigo-500/30 p-4 rounded-2xl shadow-xl mb-6 relative overflow-hidden">
+              {/* Etichetta Scadenza */}
+              <div className="absolute top-0 right-0 bg-indigo-500/10 text-indigo-400 text-[9px] font-bold px-2 py-1 rounded-bl-lg border-b border-l border-indigo-500/20">
+                SCADE IL 22/08
+              </div>
+              
+              <h3 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                👑 Marcatore Stagionale
+              </h3>
+              <p className="text-[10px] text-slate-400 mb-3 leading-tight">
+                Scegli il tuo capocannoniere. Puoi cambiarlo quante volte vuoi fino all'inizio del campionato.
+              </p>
+              
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Es. Lautaro Martinez"
+                  /* SOSTITUISCI LE VARIABILI QUI SOTTO CON I TUOI STATI REALI */
+                  value={marcatoreScelto || ''} 
+                  onChange={(e) => setMarcatoreScelto(e.target.value)} 
+                  disabled={isCampionatoIniziato || !isMioProfilo} 
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 placeholder:text-slate-600 placeholder:font-normal"
+                />
+                <button 
+                  /* SOSTITUISCI LA FUNZIONE QUI SOTTO CON QUELLA PER SALVARE NEL DB */
+                  onClick={() => salvaMarcatore(marcatoreScelto)} 
+                  disabled={isCampionatoIniziato || !isMioProfilo}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
+                >
+                  Salva
+                </button>
+              </div>
+            </div>
             {renderSelettoreGiornate()}
             <div className="mt-2">
               {partiteGiornata.map(p => renderPartitaCard(p, session.user.id, false))}
