@@ -83,6 +83,8 @@ export default function App() {
   const dataInizioCampionato = new Date('2026-06-22T18:00:00');
   const isCampionatoIniziato = new Date() > dataInizioCampionato;
 
+  const [statiStatistiche, setStatiStatistiche] = useState({});
+
   useEffect(() => {
     const checkTime = () => {
       const now = new Date()
@@ -378,7 +380,6 @@ export default function App() {
     const pronosticiInter = tuttiPronostici.filter(p => p.partita_id === partita.id && p.gol_casa_pronostico !== null && p.gol_trasferta_pronostico !== null);
     const totaleVotiInter = pronosticiInter.length;
     const conteggioRisultati = {};
-    const [mostraStatInter, setMostraStatInter] = useState(false);
 
     pronosticiInter.forEach(p => {
       const chiave = `${p.gol_casa_pronostico}-${p.gol_trasferta_pronostico}`;
