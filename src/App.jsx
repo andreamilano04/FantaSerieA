@@ -429,23 +429,6 @@ export default function App() {
               </div>
             )}
             
-            {/* INIZIO: NUOVA SEZIONE MARCATORE */}
-            <div className="mt-4 pt-3.5 border-t border-slate-800">
-              <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 text-center">Marcatore Scelto</p>
-              <div className="flex justify-center items-center">
-                {pronostico.nome_marcatore ? (
-                  <span className="text-sm font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
-                    ⚽ {pronostico.nome_marcatore}
-                  </span>
-                ) : (
-                  <span className="text-xs text-slate-500 italic">
-                    Nessun marcatore scelto
-                  </span>
-                )}
-              </div>
-            </div>
-            {/* FINE: NUOVA SEZIONE MARCATORE */}
-            
             {isGiocata && (
                <div className="absolute top-0 right-0 bg-slate-950 border-b border-l border-slate-800 rounded-bl-xl px-3 py-1">
                  <span className={`text-xs font-bold ${puntiOttenuti > 0 ? 'text-green-400' : 'text-slate-500'}`}>{puntiOttenuti > 0 ? `+${puntiOttenuti} pt` : '0 pt'}</span>
@@ -569,7 +552,6 @@ export default function App() {
                 <input 
                   type="text" 
                   placeholder="Es. Lautaro Martinez"
-                  /* SOSTITUISCI LE VARIABILI QUI SOTTO CON I TUOI STATI REALI */
                   value={marcatoreScelto || ''} 
                   onChange={(e) => setMarcatoreScelto(e.target.value)} 
                   disabled={isCampionatoIniziato} 
