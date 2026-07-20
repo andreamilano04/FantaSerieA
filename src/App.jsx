@@ -59,6 +59,7 @@ export default function App() {
   const [profili, setProfili] = useState([])
   const [partite, setPartite] = useState([])
   const [tuttiPronostici, setTuttiPronostici] = useState([])
+  const [tuttiMarcatori, setTuttiMarcatori] = useState([]);
   const [marcatoreScelto, setMarcatoreScelto] = useState('');
   
   const [isAndataScaduta, setIsAndataScaduta] = useState(false)
@@ -103,26 +104,30 @@ export default function App() {
   const caricaDatiGlobali = async () => {
     setLoading(true)
     try {
-      const [resProfili, resPartite, resPronostici] = await Promise.all([
+      // SCARICA TUTTO: Profili, Partite, Pronostici e ora anche i Marcatori!
+      const [resProfili, resPartite, resPronostici, resMarcatori] = await Promise.all([
         supabase.from('profili').select('*'),
         supabase.from('partite').select('*').order('giornata', { ascending: true }).order('id', { ascending: true }),
-        supabase.from('pronostici').select('*')
+        supabase.from('pronostici').select('*'),
+        supabase.from('pronostici_marcatore').select('*') // <-- Nuova aggiunta
       ])
 
       setProfili(resProfili.data || [])
       setPartite(resPartite.data || [])
       setTuttiPronostici(resPronostici.data || [])
+      
+      const marcatoriScaricati = resMarcatori.data || []
+      setTuttiMarcatori(marcatoriScaricati)
 
-      // NUOVO: Carica il marcatore stagionale dell'utente loggato
-      if (session?.user?.id) {
-        const { data: marcatoreData } = await supabase
-          .from('pronostici_marcatore')
-          .select('nome_marcatore') // 
-          .eq('profilo_id', session.user.id)
-          .single();
-        
-        if (marcatoreData) {
-          setMarcatoreScelto(marcatoreData.nome_marcatore); // 
+      // IL FIX È QUI: Chiediamo a Supabase di dirci con certezza chi sei 
+      // in questo esatto secondo, senza aspettare i tempi dell'app.
+      const { data: { session: sessionCorrente } } = await supabase.auth.getSession()
+      
+      if (sessionCorrente?.user?.id) {
+        // Cerca il tuo marcatore in mezzo a tutti quelli scaricati
+        const mioMarcatore = marcatoriScaricati.find(m => m.profilo_id === sessionCorrente.user.id)
+        if (mioMarcatore) {
+          setMarcatoreScelto(mioMarcatore.nome_marcatore)
         }
       }
 
