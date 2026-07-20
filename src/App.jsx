@@ -60,6 +60,13 @@ export default function App() {
   const [partite, setPartite] = useState([])
   const [tuttiPronostici, setTuttiPronostici] = useState([])
   const [tuttiMarcatori, setTuttiMarcatori] = useState([]);
+  const [toast, setToast] = useState(null);
+  const mostraNotifica = (testo, tipo = 'success') => {
+    setToast({ testo, tipo });
+    setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  };
   const [marcatoreScelto, setMarcatoreScelto] = useState('');
   
   const [isAndataScaduta, setIsAndataScaduta] = useState(false)
@@ -138,14 +145,13 @@ export default function App() {
     }
   }
 
-  const salvaMarcatore = async (nomeMarcatore) => {
-    if (!nomeMarcatore.trim()) {
-      alert("Inserisci il nome del marcatore prima di salvare!");
+  const salvaMarcatore = async (nomeDelGiocatore) => {
+    if (!nomeDelGiocatore.trim()) {
+      mostraNotifica("Inserisci il nome del marcatore prima di salvare!", "error");
       return;
     }
 
     try {
-      // Cerca se esiste già un marcatore salvato per questo utente
       const { data: existing, error: fetchError } = await supabase
         .from('pronostici_marcatore')
         .select('*')
@@ -155,24 +161,22 @@ export default function App() {
       if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
       if (existing) {
-        // Se esiste già, lo AGGIORNA (UPDATE)
         const { error } = await supabase
           .from('pronostici_marcatore')
-          .update({ nome_marcatore: nomeMarcatore })
+          .update({ nome_marcatore: nomeDelGiocatore })
           .eq('profilo_id', session.user.id);
         if (error) throw error;
       } else {
-        // Se non esiste, lo CREA (INSERT)
         const { error } = await supabase
           .from('pronostici_marcatore')
-          .insert([{ profilo_id: session.user.id, nome_marcatore: nomeMarcatore }]);
+          .insert([{ profilo_id: session.user.id, nome_marcatore: nomeDelGiocatore }]);
         if (error) throw error;
       }
 
-      alert("Marcatore stagionale salvato con successo! 👑");
+      mostraNotifica("Marcatore stagionale salvato con successo! 👑", "success");
     } catch (error) {
       console.error("Errore salvataggio marcatore:", error);
-      alert("Errore durante il salvataggio del marcatore.");
+      mostraNotifica("Errore durante il salvataggio del marcatore.", "error");
     }
   };
 
@@ -717,6 +721,22 @@ export default function App() {
         <button onClick={() => setActiveTab('classifica')} className={`flex flex-col items-center w-full py-1 text-[10px] uppercase tracking-wider transition-colors ${activeTab === 'classifica' ? 'text-emerald-400 font-bold' : 'text-slate-500'}`}>Fantagioco</button>
         <button onClick={() => setActiveTab('serie_a')} className={`flex flex-col items-center w-full py-1 text-[10px] uppercase tracking-wider transition-colors ${activeTab === 'serie_a' ? 'text-emerald-400 font-bold' : 'text-slate-500'}`}>Serie A</button>
       </nav>
+      {/* COMPONENTE NOTIFICA TOAST FLUTTUANTE */}
+      {toast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md animate-fade-in">
+          <div className={`p-4 rounded-2xl shadow-2xl border backdrop-blur-md flex items-center justify-between gap-3 text-xs font-bold transition-all ${
+            toast.tipo === 'success' 
+              ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200' 
+              : 'bg-red-950/90 border-red-500/50 text-red-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              <span className="text-base">{toast.tipo === 'success' ? '✅' : '⚠️'}</span>
+              <span>{toast.testo}</span>
+            </div>
+            <button onClick={() => setToast(null)} className="text-xs opacity-60 hover:opacity-100 p-1">✕</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
