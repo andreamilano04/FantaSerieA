@@ -5,7 +5,7 @@ import { supabase } from './supabaseClient'
 // L'Admin (tu) è l'unico che vedrà i campi per inserire i risultati e il tasto Reset.
 const ADMIN_EMAIL = 'andrea.milano2004@gmail.com' 
 
-const DATA_LIMITE_ANDATA = new Date('2026-06-22T15:00:00')
+const DATA_LIMITE_ANDATA = new Date('2026-08-22T15:00:00')
 const DATA_LIMITE_RITORNO = new Date('2027-01-16T14:00:00')
 
 // 2. DIZIONARIO LOGHI SQUADRE (FotMob - 100% Affidabile)
@@ -73,7 +73,7 @@ export default function App() {
   const [tipoClassificaFantagioco, setTipoClassificaFantagioco] = useState('generale')
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL
-  const dataInizioCampionato = new Date('2026-06-22T18:00:00');
+  const dataInizioCampionato = new Date('2026-08-22T18:00:00');
   const isCampionatoIniziato = new Date() > dataInizioCampionato;
 
   useEffect(() => {
@@ -631,8 +631,32 @@ export default function App() {
             ) : (
               <div>
                 <button onClick={() => setUtenteSelezionato(null)} className="mb-4 text-xs text-emerald-400 font-bold hover:text-emerald-300">← Torna indietro</button>
-                <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-extrabold text-slate-100">{utenteSelezionato.nome}</h2><span className="text-sm font-bold bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-lg border border-emerald-500/20">{utenteSelezionato.punti} Punti</span></div>
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-xl font-extrabold text-slate-100">{utenteSelezionato.nome}</h2>
+                  <span className="text-sm font-bold bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-lg border border-emerald-500/20">
+                    {utenteSelezionato.punti} Punti
+                  </span>
+                </div>
                 
+                {/* NUOVO: BADGE MARCATORE DELL'UTENTE SPIATO */}
+                <div className="mb-6 p-3 bg-indigo-950/30 border border-indigo-500/30 rounded-xl flex items-center justify-between shadow-inner">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    👑 Marcatore Stagionale
+                  </span>
+                  {isCampionatoIniziato || utenteSelezionato.id === session.user.id ? (
+                    <span className="text-sm font-bold text-indigo-400 flex items-center gap-1.5">
+                      {tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore ? (
+                        <>⚽ {tuttiMarcatori.find(m => m.profilo_id === utenteSelezionato.id)?.nome_marcatore}</>
+                      ) : (
+                        <span className="italic text-slate-500 text-xs">Nessuno</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold bg-slate-800 text-slate-400 px-2.5 py-1 rounded-md border border-slate-700 flex items-center gap-1">
+                      🔒 Segreto fino al 22/08
+                    </span>
+                  )}
+                </div>                
                 {renderSelettoreGiornate()}
                 
                 {(!scadutaAttuale && utenteSelezionato.id !== session.user.id) ? (
