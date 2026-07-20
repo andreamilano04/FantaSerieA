@@ -471,17 +471,17 @@ export default function App() {
                 {/* PULSANTE PER VEDERE LE STATISTICHE DEGLI ALTRI */}
                 {isScaduta && totaleVotiInter > 0 && (
                   <button 
-                    onClick={() => setMostraStatInter(!mostraStatInter)}
+                    onClick={() => setStatiStatistiche(prev => ({ ...prev, [partita.id]: !prev[partita.id] }))}
                     className="w-full py-2 text-[10px] font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-all"
                   >
-                    {mostraStatInter ? 'Nascondi Scommesse Community' : 'Vedi Scommesse Community'}
+                    {statiStatistiche[partita.id] ? 'Nascondi Scommesse Community' : 'Vedi Scommesse Community'}
                   </button>
                 )}
               </div>
             )}
             
             {/* 👇 INIZIO: SEZIONE STATISTICHE SCOMMESSE 👇 */}
-            {isScaduta && !isRisultatiReali && totaleVoti > 0 && mostraStatInter && (
+            {isScaduta && !isRisultatiReali && totaleVoti > 0 && statiStatistiche[partita.id] && (
               <div className="mt-4 pt-3 border-t border-slate-800/60 animate-fade-in">
                 <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
                   Scommesse Community
