@@ -374,6 +374,24 @@ export default function App() {
     }
     // 👆 FINE NUOVO BLOCCO 👆
 
+    // 👇 CALCOLO RISULTATI ESATTI 👇
+    const pronosticiInter = tuttiPronostici.filter(p => p.partita_id === partita.id && p.gol_casa_pronostico !== null && p.gol_trasferta_pronostico !== null);
+    const totaleVotiInter = pronosticiInter.length;
+    const conteggioRisultati = {};
+
+    pronosticiInter.forEach(p => {
+      const chiave = `${p.gol_casa_pronostico}-${p.gol_trasferta_pronostico}`;
+      conteggioRisultati[chiave] = (conteggioRisultati[chiave] || 0) + 1;
+    });
+
+    const risultatiOrdinati = Object.entries(conteggioRisultati)
+      .map(([risultato, conteggio]) => ({
+        risultato,
+        percentuale: Math.round((conteggio / totaleVotiInter) * 100)
+      }))
+      .sort((a, b) => b.percentuale - a.percentuale);
+    // 👆 FINE CALCOLO 👇
+
     return (
       <div key={partita.id} className={`bg-slate-900 border ${partita.is_inter ? 'border-yellow-500/30' : 'border-slate-800'} p-4 rounded-2xl shadow-xl mb-4 relative`}>
         <div className="flex justify-between items-center mb-4">
@@ -472,6 +490,21 @@ export default function App() {
                   <div style={{ width: `${percX}%` }} className="bg-slate-500"></div>
                   <div style={{ width: `${perc2}%` }} className="bg-red-500"></div>
                 </div>
+                {partita.is_inter && risultatiOrdinati.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-slate-800/60">
+                    <p className="text-[9px] uppercase tracking-wider font-bold text-slate-500 mb-2 text-center">
+                      Top Risultati Esatti
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {risultatiOrdinati.slice(0, 4).map((item, idx) => (
+                        <div key={idx} className="flex justify-between bg-slate-950 px-2 py-1 rounded text-[10px]">
+                          <span className="font-bold text-emerald-400">{item.risultato.replace('-', ' - ')}</span>
+                          <span className="text-slate-400">{item.percentuale}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {/* 👆 FINE: SEZIONE STATISTICHE SCOMMESSE 👆 */}
