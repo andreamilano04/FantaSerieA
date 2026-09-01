@@ -7,7 +7,7 @@ const ADMIN_EMAIL = 'andrea.milano2004@gmail.com'
 
 const VINCITORI_REALI = []; // Quando finirà il campionato, scrivi qui i nomi come fatto prima!
 
-const DATA_LIMITE_ANDATA = new Date('2026-08-22T15:00:00')
+const DATA_LIMITE_ANDATA = new Date('2026-09-22T15:00:00')
 const DATA_LIMITE_RITORNO = new Date('2027-01-16T14:00:00')
 
 // 2. DIZIONARIO LOGHI SQUADRE (FotMob - 100% Affidabile)
