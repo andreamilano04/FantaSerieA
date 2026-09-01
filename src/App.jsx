@@ -82,7 +82,7 @@ export default function App() {
   const [tipoClassificaFantagioco, setTipoClassificaFantagioco] = useState('generale')
 
   const isAdmin = session?.user?.email === ADMIN_EMAIL
-  const dataInizioCampionato = new Date('2026-08-22T18:00:00');
+  const dataInizioCampionato = new Date('2026-09-22T18:00:00');
   const isCampionatoIniziato = new Date() > dataInizioCampionato;
 
   const [statiStatistiche, setStatiStatistiche] = useState({});
