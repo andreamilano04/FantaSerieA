@@ -625,7 +625,7 @@ export default function App() {
       <header className="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-20 flex justify-between items-center shadow-md">
         <div className="flex flex-col">
           <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">FantaSerieA</h1>
-          <span className="text-[9px] text-slate-400 font-mono">SERIE A: 22/08 | R: 16/01</span>
+          <span className="text-[9px] text-slate-400 font-mono">SERIE A: 22/09 | R: 16/01</span>
         </div>
         
         <div className="flex items-center gap-3">
@@ -667,7 +667,7 @@ export default function App() {
                 </div>
               ) : (
                 <div className="absolute top-0 right-0 bg-indigo-500/10 text-indigo-400 text-[9px] font-bold px-2 py-1 rounded-bl-lg border-b border-l border-indigo-500/20">
-                  SCADE IL 22/08
+                  SCADE IL 22/09
                 </div>
               )}
               
